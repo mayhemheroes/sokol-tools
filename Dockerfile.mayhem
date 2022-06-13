@@ -1,0 +1,15 @@
+FROM alpine as builder
+ADD . /workspace/sokol-tools
+RUN apk add build-base git python3 cmake ninja
+RUN cd /workspace/sokol-tools && \
+    ./fips build linux-ninja-release && \
+    strip /workspace/fips-deploy/sokol-tools/linux-ninja-release/sokol-shdc
+
+RUN mkdir -p /deps
+RUN ldd /workspace/fips-deploy/sokol-tools/linux-ninja-release/sokol-shdc | tr -s '[:blank:]' '\n' | grep '^/' | xargs -I % sh -c 'cp % /deps;'
+
+FROM alpine as package
+
+COPY --from=builder /deps /deps
+COPY --from=builder /workspace/fips-deploy/sokol-tools/linux-ninja-release/sokol-shdc /workspace/fips-deploy/sokol-tools/linux-ninja-release/sokol-shdc
+ENV LD_LIBRARY_PATH=/deps

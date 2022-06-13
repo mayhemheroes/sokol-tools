@@ -1,0 +1,4 @@
+project: sokol-tools
+target: sokol-shdc
+cmds:
+  - cmd: /workspace/fips-deploy/sokol-tools/linux-ninja-release/sokol-shdc --input @@ --output /dev/null --slang metal_ios
