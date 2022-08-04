@@ -191,6 +191,9 @@ static void write_header(const args_t& args, const input_t& inp, const spirvcros
     L("#include <stdbool.h>\n");
     L("#include <string.h>\n");
     L("#include <stddef.h>\n");
+    for (const auto& header: inp.headers) {
+        L("{}\n", header);
+    }
 }
 
 static void write_vertex_attrs(const input_t& inp, const spirvcross_t& spirvcross) {
@@ -225,13 +228,13 @@ static void write_uniform_blocks(const input_t& inp, const spirvcross_t& spirvcr
                 L("    uint8_t _pad_{}[{}];\n", cur_offset, next_offset - cur_offset);
                 cur_offset = next_offset;
             }
-            if (inp.type_map.count(uniform_type_str(uniform.type)) > 0) {
+            if (inp.ctype_map.count(uniform_type_str(uniform.type)) > 0) {
                 // user-provided type names
                 if (uniform.array_count == 1) {
-                    L("    {} {};\n", inp.type_map.at(uniform_type_str(uniform.type)), uniform.name);
+                    L("    {} {};\n", inp.ctype_map.at(uniform_type_str(uniform.type)), uniform.name);
                 }
                 else {
-                    L("    {} {}[{}];\n", inp.type_map.at(uniform_type_str(uniform.type)), uniform.name, uniform.array_count);
+                    L("    {} {}[{}];\n", inp.ctype_map.at(uniform_type_str(uniform.type)), uniform.name, uniform.array_count);
                 }
             }
             else {
@@ -326,7 +329,7 @@ static void write_shader_sources_and_blobs(const input_t& inp,
         /* first write the source code in a comment block */
         L("/*\n");
         for (const std::string& line: lines) {
-            L("    {}\n", line);
+            L("    {}\n", util::replace_C_comment_tokens(line));
         }
         L("*/\n");
         if (blob) {
