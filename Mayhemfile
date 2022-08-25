@@ -1,6 +1,4 @@
 project: sokol-tools
 target: sokol-shdc
-testsuite:
-  - file://test/sgl.glsl
 cmds:
   - cmd: /sokol-shdc --input @@ --output /dev/null --slang metal_ios
