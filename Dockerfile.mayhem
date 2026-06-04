@@ -1,9 +1,10 @@
-FROM alpine as builder
+FROM denoland/deno:alpine AS builder
+RUN LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH apk add build-base git cmake ninja
 COPY . /workspace/sokol-tools
-RUN apk add build-base git python3 cmake ninja
 RUN cd /workspace/sokol-tools && \
-    ./fips build linux-ninja-release && \
-    strip /workspace/fips-deploy/sokol-tools/linux-ninja-release/sokol-shdc
+    LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH ./fibs config linux-ninja-release --verbose && \
+    LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH ./fibs build --verbose && \
+    LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH strip /workspace/sokol-tools/.fibs/dist/linux-ninja-release/sokol-shdc
 
-FROM alpine as package
-COPY --from=builder /workspace/fips-deploy/sokol-tools/linux-ninja-release/sokol-shdc /
+FROM alpine AS package
+COPY --from=builder /workspace/sokol-tools/.fibs/dist/linux-ninja-release/sokol-shdc /
